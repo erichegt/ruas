@@ -1,0 +1,44 @@
+<!Doctype html>
+<html>
+	<body>
+	<canvas id="tabuleiro" style="float: right; border:1px solid #000000;" width="800" height="400"></canvas>
+	<textarea id="entrada" style="height: 400px; width: 300px; display: block;"></textarea>
+	<input type="submit" value="Executar"/>
+	</body>
+</html>
+
+<script>
+var tabuleiro = document.getElementById("tabuleiro");
+var ctx=tabuleiro.getContext("2d");
+
+var tamanhoQuadrado = 40;
+var numLargura = tabuleiro.width / tamanhoQuadrado;
+var numAltura = tabuleiro.height / tamanhoQuadrado;
+
+for (x = 0; x< numLargura; x++) {
+	for (y = 0; y< numAltura; y++) {
+		ctx.fillStyle="#f00";
+		ctx.lineWidth=0.5;
+  		ctx.strokeRect(x*tamanhoQuadrado ,y*tamanhoQuadrado,tamanhoQuadrado,tamanhoQuadrado);
+		ctx.fill();
+	}
+}
+
+var bola = function(x,y,cor) {
+	ctx.fillStyle = cor;
+	ctx.beginPath();
+  	ctx.arc(x*tamanhoQuadrado, y*tamanhoQuadrado, 5, 0, Math.PI*2, true);
+	ctx.closePath();
+	ctx.fill();
+}
+
+bola(2,1,"#29A629");
+bola(12,6,"#F00");
+
+var entrada = document.getElementById("entrada");
+var comandos = entrada.split(";");
+
+
+
+
+</script>

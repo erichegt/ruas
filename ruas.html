@@ -39,31 +39,35 @@ var carro = function(x,y,direcao) {
 	ctx.drawImage(document.getElementById("carro"), x*tamanhoQuadrado-10, y*tamanhoQuadrado-10);
 }
 
-// ainda nao funciona para a esquerda
 var andaHorizontal = function(origemX, origemY, quadrasPraDireita) {
+	var multiplicador = (quadrasPraDireita > 0) ? 1 : -1;
+	quadrasPraDireita = quadrasPraDireita * multiplicador;
 	for (i = 1; i <= quadrasPraDireita; i++) {
-		bola(origemX + i, origemY, "#AAA");
+		bola(origemX + (i * multiplicador), origemY, "#339");
 	}
 }
 
-// ainda nao funciona para cima
 var andaVertical = function(origemX, origemY, quadrasPraBaixo) {
+	var multiplicador = (quadrasPraBaixo > 0) ? 1 : -1;
+	quadrasPraBaixo = quadrasPraBaixo * multiplicador;
 	for (i = 1; i <= quadrasPraBaixo; i++) {
-		bola(origemX, origemY + i, "#AAA");
+		bola(origemX, origemY + (i * multiplicador), "#339");
 	}
 }
 
 bola(2, 1, "#3A3");
 bola(12, 6, "#F00");
 carro(2, 1, "direita");
-andaHorizontal(2, 1, 3);
-andaVertical(5, 1, 2);
-andaHorizontal(5, 3, 7);
-andaVertical(12, 3, 3);
-carro(12, 6, "baixo");
+andaHorizontal(2, 1, 7);
+andaVertical(9, 1, 5);
+andaHorizontal(9, 6, -5);
+andaVertical(4, 6, -2);
+andaHorizontal(4, 4, -2);
+andaVertical(2, 4, 5);
+andaHorizontal(2, 9, 10);
+andaVertical(12, 9, -3);
 
 var entrada = document.getElementById("entrada");
 var comandos = entrada.split(";");
-
 
 </script>

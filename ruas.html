@@ -4,27 +4,29 @@
 		<canvas id="tabuleiro" style="float: right; border:1px solid #000000;" width="800" height="400"></canvas>
 		<div>
 			<textarea id="entrada" style="height: 400px; width: 300px; display: block;"></textarea>
-			<input type="submit" value="Executar"/>
+			<input type="submit" value="Executar" onclick="executaComandos()" />
 		</div>
 	</body>
 </html>
 
 <img id="carro" src="carro.png" hidden="true"/>
-<img id="carroCaminho" src="carro-caminho.png" hidden="true"/>
 
 <script>
-var tabuleiro = document.getElementById("tabuleiro");
-var ctx=tabuleiro.getContext("2d");
 
-var tamanhoQuadrado = 40;
-var numLargura = tabuleiro.width / tamanhoQuadrado;
-var numAltura = tabuleiro.height / tamanhoQuadrado;
+var desenhaTabuleiro = function() {
+	var tabuleiro = document.getElementById("tabuleiro");
+	var ctx=tabuleiro.getContext("2d");
 
-for (x = 0; x< numLargura; x++) {
-	for (y = 0; y< numAltura; y++) {
-		ctx.lineWidth=0.5;
-  		ctx.strokeRect(x*tamanhoQuadrado ,y*tamanhoQuadrado,tamanhoQuadrado,tamanhoQuadrado);
-		ctx.fill();
+	var tamanhoQuadrado = 40;
+	var numLargura = tabuleiro.width / tamanhoQuadrado;
+	var numAltura = tabuleiro.height / tamanhoQuadrado;
+
+	for (x = 0; x< numLargura; x++) {
+		for (y = 0; y< numAltura; y++) {
+			ctx.lineWidth=0.5;
+	  		ctx.strokeRect(x*tamanhoQuadrado ,y*tamanhoQuadrado,tamanhoQuadrado,tamanhoQuadrado);
+			ctx.fill();
+		}
 	}
 }
 
@@ -55,6 +57,47 @@ var andaVertical = function(origemX, origemY, quadrasPraBaixo) {
 	}
 }
 
+var processaDirecao = function(direcaoAtual, virandoPara) {
+	var direcoes = ["direita", "baixo", "esquerda", "cima"];
+	var indice = direcoes.indexOf(direcaoAtual);
+	if (virandoPara == "direita") {
+		indice = (indice + 1) % 4;
+	} else if (virandoPara == "esquerda") {
+		indice = (indice + 3) % 4;
+	}
+	return direcoes[indice];
+}
+
+function executaComandos(inicioX, inicioY, inicioDirecao) {
+	var x = inicioX;
+	var y = inicioY;
+	var direcao = processaDirecao(inicioDirecao);
+
+	var entrada = document.getElementById("entrada").value;
+	var comandos = entrada.split(";");
+	for (comando in comandos) {
+		var texto = comando.split(" ");
+		if (texto.length == 4 && 
+					texto[0] == "vire" && 
+					texto[1] == "para" &&
+					texto[2] == "a" && 
+					(texto[3] == "direita" || texto[3] == "esquerda") {
+			direcao = processaDirecao(direcao, texto[3]);
+		} else if (texto.length == 3 && 
+					texto[0] == "ande" && 
+					(texto[2] == "quadra" || texto[2] == "quadras") {
+			var quantidade = texto[1];
+
+			// falta a parte de andar \o/
+			// ande(x, y, direcao)
+			
+		} else {
+			alert("Comando invalido: " + comando);
+		}
+	}
+
+}
+
 bola(2, 1, "#3A3");
 bola(12, 6, "#F00");
 carro(2, 1, "direita");
@@ -66,8 +109,5 @@ andaHorizontal(4, 4, -2);
 andaVertical(2, 4, 5);
 andaHorizontal(2, 9, 10);
 andaVertical(12, 9, -3);
-
-var entrada = document.getElementById("entrada");
-var comandos = entrada.split(";");
 
 </script>

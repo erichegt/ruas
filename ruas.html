@@ -4,7 +4,7 @@
 		<canvas id="tabuleiro" style="float: right; border:1px solid #000000;" width="800" height="400"></canvas>
 		<div>
 			<textarea id="entrada" style="height: 400px; width: 300px; display: block;"></textarea>
-			<input type="submit" value="Executar" onclick="executaComandos()" />
+			<input type="submit" value="Executar" onclick="executaComandos(2, 1, 'direita')" />
 		</div>
 	</body>
 </html>
@@ -12,24 +12,6 @@
 <img id="carro" src="carro.png" hidden="true"/>
 
 <script>
-
-var desenhaTabuleiro = function() {
-	var tabuleiro = document.getElementById("tabuleiro");
-	var ctx=tabuleiro.getContext("2d");
-
-	var tamanhoQuadrado = 40;
-	var numLargura = tabuleiro.width / tamanhoQuadrado;
-	var numAltura = tabuleiro.height / tamanhoQuadrado;
-
-	for (x = 0; x< numLargura; x++) {
-		for (y = 0; y< numAltura; y++) {
-			ctx.lineWidth=0.5;
-	  		ctx.strokeRect(x*tamanhoQuadrado ,y*tamanhoQuadrado,tamanhoQuadrado,tamanhoQuadrado);
-			ctx.fill();
-		}
-	}
-}
-
 var bola = function(x,y,cor) {
 	ctx.fillStyle = cor;
 	ctx.beginPath();
@@ -57,6 +39,22 @@ var andaVertical = function(origemX, origemY, quadrasPraBaixo) {
 	}
 }
 
+var ande = function(origem, quadras, direcao) {
+	if (direcao == "direita") {
+		andaHorizontal(origem[0], origem[1], quadras);
+		return [origem[0] + quadras, origem[1]];
+	} else if (direcao == "esquerda") {
+		andaHorizontal(origem[0], origem[1], -quadras);
+		return [origem[0] - quadras, origem[1]];
+	} else if (direcao == "baixo") {
+		andaVertical(origem[0], origem[1], quadras);
+		return [origem[0], origem[1] + quadras];
+	} else if (direcao == "cima") {
+		andaVertical(origem[0], origem[1], -quadras);
+		return [origem[0], origem[1] - quadras];
+	}
+}
+
 var processaDirecao = function(direcaoAtual, virandoPara) {
 	var direcoes = ["direita", "baixo", "esquerda", "cima"];
 	var indice = direcoes.indexOf(direcaoAtual);
@@ -69,28 +67,26 @@ var processaDirecao = function(direcaoAtual, virandoPara) {
 }
 
 function executaComandos(inicioX, inicioY, inicioDirecao) {
-	var x = inicioX;
-	var y = inicioY;
+	var posicao = [inicioX, inicioY];
 	var direcao = processaDirecao(inicioDirecao);
 
 	var entrada = document.getElementById("entrada").value;
 	var comandos = entrada.split(";");
-	for (comando in comandos) {
+	for (var i = 0; i < comandos.length; i++) {
+		var comando = comandos[i].replace("\n", "");
+		alert("Executando: " + comando);
 		var texto = comando.split(" ");
 		if (texto.length == 4 && 
 					texto[0] == "vire" && 
 					texto[1] == "para" &&
 					texto[2] == "a" && 
-					(texto[3] == "direita" || texto[3] == "esquerda") {
+					(texto[3] == "direita" || texto[3] == "esquerda")) {
 			direcao = processaDirecao(direcao, texto[3]);
 		} else if (texto.length == 3 && 
 					texto[0] == "ande" && 
-					(texto[2] == "quadra" || texto[2] == "quadras") {
+					(texto[2] == "quadra" || texto[2] == "quadras")) {
 			var quantidade = texto[1];
-
-			// falta a parte de andar \o/
-			// ande(x, y, direcao)
-			
+			posicao = ande(posicao, quantidade, direcao);
 		} else {
 			alert("Comando invalido: " + comando);
 		}
@@ -98,16 +94,24 @@ function executaComandos(inicioX, inicioY, inicioDirecao) {
 
 }
 
+
+var tabuleiro = document.getElementById("tabuleiro");
+var ctx = tabuleiro.getContext("2d");
+
+var tamanhoQuadrado = 40;
+var numLargura = tabuleiro.width / tamanhoQuadrado;
+var numAltura = tabuleiro.height / tamanhoQuadrado;
+
+for (x = 0; x< numLargura; x++) {
+	for (y = 0; y< numAltura; y++) {
+		ctx.lineWidth=0.5;
+  		ctx.strokeRect(x*tamanhoQuadrado ,y*tamanhoQuadrado,tamanhoQuadrado,tamanhoQuadrado);
+		ctx.fill();
+	}
+}
+
 bola(2, 1, "#3A3");
 bola(12, 6, "#F00");
 carro(2, 1, "direita");
-andaHorizontal(2, 1, 7);
-andaVertical(9, 1, 5);
-andaHorizontal(9, 6, -5);
-andaVertical(4, 6, -2);
-andaHorizontal(4, 4, -2);
-andaVertical(2, 4, 5);
-andaHorizontal(2, 9, 10);
-andaVertical(12, 9, -3);
 
 </script>

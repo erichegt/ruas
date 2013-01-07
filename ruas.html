@@ -1,10 +1,11 @@
+<meta charset="UTF-8">
 <!Doctype html>
 <html>
 	<body>
 		<canvas id="tabuleiro" style="float: right; border:1px solid #000000;" width="800" height="400"></canvas>
 		<div>
 			<textarea id="entrada" style="height: 400px; width: 300px; display: block;"></textarea>
-			<input type="submit" value="Executar" onclick="executaComandos(2, 1, 'direita')" />
+			<input type="submit" value="Executar" onclick="executaComandos()" />
 		</div>
 	</body>
 </html>
@@ -12,89 +13,6 @@
 <img id="carro" src="carro.png" hidden="true"/>
 
 <script>
-var bola = function(x,y,cor) {
-	ctx.fillStyle = cor;
-	ctx.beginPath();
-  	ctx.arc(x*tamanhoQuadrado, y*tamanhoQuadrado, 5, 0, Math.PI*2, true);
-	ctx.fill();
-}
-
-var carro = function(x,y,direcao) {
-	ctx.drawImage(document.getElementById("carro"), x*tamanhoQuadrado-10, y*tamanhoQuadrado-10);
-}
-
-var andaHorizontal = function(origemX, origemY, quadrasPraDireita) {
-	var multiplicador = (quadrasPraDireita > 0) ? 1 : -1;
-	quadrasPraDireita = quadrasPraDireita * multiplicador;
-	for (i = 1; i <= quadrasPraDireita; i++) {
-		bola(origemX + (i * multiplicador), origemY, "#339");
-	}
-}
-
-var andaVertical = function(origemX, origemY, quadrasPraBaixo) {
-	var multiplicador = (quadrasPraBaixo > 0) ? 1 : -1;
-	quadrasPraBaixo = quadrasPraBaixo * multiplicador;
-	for (i = 1; i <= quadrasPraBaixo; i++) {
-		bola(origemX, origemY + (i * multiplicador), "#339");
-	}
-}
-
-var ande = function(origem, quadras, direcao) {
-	if (direcao == "direita") {
-		andaHorizontal(origem[0], origem[1], quadras);
-		return [origem[0] + quadras, origem[1]];
-	} else if (direcao == "esquerda") {
-		andaHorizontal(origem[0], origem[1], -quadras);
-		return [origem[0] - quadras, origem[1]];
-	} else if (direcao == "baixo") {
-		andaVertical(origem[0], origem[1], quadras);
-		return [origem[0], origem[1] + quadras];
-	} else if (direcao == "cima") {
-		andaVertical(origem[0], origem[1], -quadras);
-		return [origem[0], origem[1] - quadras];
-	}
-}
-
-var processaDirecao = function(direcaoAtual, virandoPara) {
-	var direcoes = ["direita", "baixo", "esquerda", "cima"];
-	var indice = direcoes.indexOf(direcaoAtual);
-	if (virandoPara == "direita") {
-		indice = (indice + 1) % 4;
-	} else if (virandoPara == "esquerda") {
-		indice = (indice + 3) % 4;
-	}
-	return direcoes[indice];
-}
-
-function executaComandos(inicioX, inicioY, inicioDirecao) {
-	var posicao = [inicioX, inicioY];
-	var direcao = processaDirecao(inicioDirecao);
-
-	var entrada = document.getElementById("entrada").value;
-	var comandos = entrada.split(";");
-	for (var i = 0; i < comandos.length; i++) {
-		var comando = comandos[i].replace("\n", "");
-		alert("Executando: " + comando);
-		var texto = comando.split(" ");
-		if (texto.length == 4 && 
-					texto[0] == "vire" && 
-					texto[1] == "para" &&
-					texto[2] == "a" && 
-					(texto[3] == "direita" || texto[3] == "esquerda")) {
-			direcao = processaDirecao(direcao, texto[3]);
-		} else if (texto.length == 3 && 
-					texto[0] == "ande" && 
-					(texto[2] == "quadra" || texto[2] == "quadras")) {
-			var quantidade = texto[1];
-			posicao = ande(posicao, quantidade, direcao);
-		} else {
-			alert("Comando invalido: " + comando);
-		}
-	}
-
-}
-
-
 var tabuleiro = document.getElementById("tabuleiro");
 var ctx = tabuleiro.getContext("2d");
 
@@ -102,16 +20,144 @@ var tamanhoQuadrado = 40;
 var numLargura = tabuleiro.width / tamanhoQuadrado;
 var numAltura = tabuleiro.height / tamanhoQuadrado;
 
-for (x = 0; x< numLargura; x++) {
-	for (y = 0; y< numAltura; y++) {
-		ctx.lineWidth=0.5;
-  		ctx.strokeRect(x*tamanhoQuadrado ,y*tamanhoQuadrado,tamanhoQuadrado,tamanhoQuadrado);
-		ctx.fill();
+var Fase = function() {
+	this.inicio = new Coordenada(2,1);
+	this.fim = new Coordenada(12,6);
+	
+	bola(this.inicio.x, this.inicio.y, "#3A3");
+	bola(this.fim.x, this.fim.y, "#F00");
+	
+	this.inicia = function() {
+		for (x = 0; x< numLargura; x++) {
+			for (y = 0; y< numAltura; y++) {
+				ctx.lineWidth=0.5;
+		  		ctx.strokeRect(x*tamanhoQuadrado ,y*tamanhoQuadrado,tamanhoQuadrado,tamanhoQuadrado);
+				ctx.fill();
+			}
+		}
 	}
 }
 
-bola(2, 1, "#3A3");
-bola(12, 6, "#F00");
-carro(2, 1, "direita");
+var bola = function(x,y,cor) {
+	ctx.fillStyle = cor;
+	ctx.beginPath();
+  	ctx.arc(x*tamanhoQuadrado, y*tamanhoQuadrado, 5, 0, Math.PI*2, true);
+	ctx.fill();
+}
+
+var bolaAzul = function(x,y) {
+	bola(x, y,"#339");
+}
+
+var bolaVermelha = function(x,y) {
+	bola(x, y,"#F00");
+}
+
+var Coordenada = function(x,y) {
+	this.x = x;
+	this.y = y;
+	
+	this.desloca = function(sentido, quadras) {
+		var novoX = this.x;
+		var novoY = this.y;
+		
+		switch (sentido.valor) {
+			case "cima": novoY -= quadras; break;
+			case "baixo": novoY += quadras; break;
+			case "direita": novoX += quadras; break;
+			case "esquerda": novoX -= quadras; break;
+		}
+		
+		return new Coordenada(novoX, novoY);
+	}
+}
+
+var Sentido = function(sentidoInicial) {
+	var sentidos = ["cima", "direita", "baixo", "esquerda"];
+	this.valor = sentidoInicial;
+	
+	this.virePara = function(sentidoParaVirar) {
+		var codigoSentido = sentidos.indexOf(this.valor);
+		
+		if (sentidoParaVirar == "esquerda") {
+			codigoSentido -= 1;
+		} else if (sentidoParaVirar == "direita") {
+			codigoSentido += 1;
+		}
+		
+		if (codigoSentido > 3) {
+			codigoSentido -= 4;
+		}
+		
+		if (codigoSentido < 0) {
+			codigoSentido += 4;
+		}
+		
+		var novoSentido = sentidos[codigoSentido];
+		
+		return new Sentido(novoSentido);
+	}
+}
+
+var pintaCaminho = function(inicio, fim) {
+	console.log("pintando caminho de ("+inicio.x+","+inicio.y+") até ("+fim.x+","+fim.y+")");
+	if (inicio.x == fim.x) {
+		for (var i = inicio.y; i <= fim.y; i++) {
+			bolaAzul(inicio.x, i)
+		}
+	} else 	if (inicio.y == fim.y) {
+		for (var i = inicio.x; i <= fim.x; i++) {
+			bolaAzul(i, inicio.y)
+		}
+	}
+}
+
+var fase = new Fase();
+fase.inicia();
+
+function executaComandos(){
+	ctx.clearRect(0, 0, tabuleiro.width, tabuleiro.height);
+	var fase = new Fase();
+	fase.inicia();
+	
+	var entrada = document.getElementById("entrada").value;
+	var comandos = entrada.split("\n");
+	console.log(comandos);
+	
+	var sentidoAtual = new Sentido("direita");
+	var localAtual = new Coordenada(2,1);
+	
+	for (var i = 0; i< comandos.length; i++) {
+		var comando = comandos[i];
+		
+		if (comando == "vire para esquerda") {
+			sentidoAtual = sentidoAtual.virePara("esquerda");
+			console.log("novo sentido: "+sentidoAtual.valor);
+		} else if (comando == "vire para direita") {
+			sentidoAtual = sentidoAtual.virePara("direita");			
+			console.log("novo sentido: "+sentidoAtual.valor);
+		} else {
+			var linha = comando.split(" ");
+			
+			if (linha.length == 3 && linha[0] == "ande") {
+				var quadras = parseInt(linha[1]);
+				var novoLocal = localAtual.desloca(sentidoAtual, quadras);
+				pintaCaminho(localAtual, novoLocal);
+				localAtual = novoLocal;
+			} else {
+				alert("Comando invalido: " + comando);
+				break;
+			}
+		}
+	}
+	
+	if (localAtual.x == fase.fim.x && localAtual.y == fase.fim.y) {
+		alert("Você ganhou!");
+	}
+}
+
+
+
+
 
 </script>

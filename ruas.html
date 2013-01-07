@@ -21,7 +21,7 @@ var numLargura = tabuleiro.width / tamanhoQuadrado;
 var numAltura = tabuleiro.height / tamanhoQuadrado;
 
 var Fase = function() {
-	this.inicio = new Coordenada(2,1);
+	this.inicio = new Coordenada(5,3);
 	this.fim = new Coordenada(12,6);
 	
 	bola(this.inicio.x, this.inicio.y, "#3A3");
@@ -102,11 +102,17 @@ var Sentido = function(sentidoInicial) {
 var pintaCaminho = function(inicio, fim) {
 	console.log("pintando caminho de ("+inicio.x+","+inicio.y+") até ("+fim.x+","+fim.y+")");
 	if (inicio.x == fim.x) {
-		for (var i = inicio.y; i <= fim.y; i++) {
+		var menor = inicio.y <= fim.y ? inicio.y : fim.y;
+		var maior = inicio.y >= fim.y ? inicio.y : fim.y;
+
+		for (var i = menor; i <= maior; i++) {
 			bolaAzul(inicio.x, i)
 		}
 	} else 	if (inicio.y == fim.y) {
-		for (var i = inicio.x; i <= fim.x; i++) {
+		var menor = inicio.x < fim.x ? inicio.x : fim.x;
+		var maior = inicio.x > fim.x ? inicio.x : fim.x;
+
+		for (var i = menor; i <= maior; i++) {
 			bolaAzul(i, inicio.y)
 		}
 	}
@@ -125,7 +131,7 @@ function executaComandos(){
 	console.log(comandos);
 	
 	var sentidoAtual = new Sentido("direita");
-	var localAtual = new Coordenada(2,1);
+	var localAtual = fase.inicio;
 	
 	for (var i = 0; i< comandos.length; i++) {
 		var comando = comandos[i];

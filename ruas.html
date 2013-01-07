@@ -46,7 +46,7 @@ var bola = function(x,y,cor) {
 }
 
 var bolaAzul = function(x,y) {
-	bola(x, y,"#339");
+	bola(x, y,"#C0D0FA");
 }
 
 var bolaVermelha = function(x,y) {
@@ -74,6 +74,7 @@ var Coordenada = function(x,y) {
 
 var Sentido = function(sentidoInicial) {
 	var sentidos = ["cima", "direita", "baixo", "esquerda"];
+	var simbolos = ["\u2191", "\u2192", "\u2193", "\u2190"]
 	this.valor = sentidoInicial;
 	
 	this.virePara = function(sentidoParaVirar) {
@@ -96,6 +97,12 @@ var Sentido = function(sentidoInicial) {
 		var novoSentido = sentidos[codigoSentido];
 		
 		return new Sentido(novoSentido);
+	}
+	
+	this.simbolo = function() {
+		var codigo = sentidos.indexOf(this.valor);
+		
+		return simbolos[codigo];
 	}
 }
 
@@ -120,6 +127,13 @@ var pintaCaminho = function(inicio, fim) {
 
 var fase = new Fase();
 fase.inicia();
+
+var seta = function(coordenada, sentido) {
+	console.log("seta:" +sentido.simbolo());
+	ctx.fillStyle = "red";
+	ctx.font = "bold 30px Arial";
+	ctx.fillText(sentido.simbolo() , coordenada.x * tamanhoQuadrado - 8, coordenada.y * tamanhoQuadrado + 8);
+}
 
 function executaComandos(){
 	ctx.clearRect(0, 0, tabuleiro.width, tabuleiro.height);
@@ -157,10 +171,14 @@ function executaComandos(){
 		}
 	}
 	
+	seta(localAtual, sentidoAtual);
+	
 	if (localAtual.x == fase.fim.x && localAtual.y == fase.fim.y) {
 		alert("Você ganhou!");
 	}
+	
 }
+
 
 
 

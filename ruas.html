@@ -69,8 +69,24 @@ var Coordenada = function(x,y) {
 		}
 		
 		return new Coordenada(novoX, novoY);
-	}
-}
+	};
+	
+	this.pintaRotaAte = function(destino, desenha) {
+		console.log("pintando caminho de ("+this.x+","+this.y+") até ("+destino.x+","+destino.y+")");
+
+		var menorY = Math.min(this.y,destino.y);
+		var maiorY = Math.max(this.y,destino.y);
+
+		var menorX = Math.min(this.x,destino.x);
+		var maiorX = Math.max(this.x,destino.x);
+
+		for (var x=menorX; x<=maiorX; x++) {
+			for (var y=menorY; y<=maiorY; y++) {
+				desenha(x,y);
+			}
+		}
+	};
+};
 
 var Sentido = function(sentidoInicial) {
 	var sentidos = ["cima", "direita", "baixo", "esquerda"];
@@ -97,47 +113,47 @@ var Sentido = function(sentidoInicial) {
 		var novoSentido = sentidos[codigoSentido];
 		
 		return new Sentido(novoSentido);
-	}
+	};
 	
 	this.simbolo = function() {
 		var codigo = sentidos.indexOf(this.valor);
 		
 		return simbolos[codigo];
-	}
+	};
+};
+
+var Carro = function(localInicial, sentidoInicial) {
+	this.local = localInicial;
+	this.sentido = sentidoInicial;
+	
+	this.desenhaSeta = function() {
+		console.log("seta:" +this.sentido.simbolo());
+		ctx.fillStyle = "red";
+		ctx.font = "bold 30px Arial";
+		ctx.fillText(this.sentido.simbolo() , this.local.x * tamanhoQuadrado - 8, this.local.y * tamanhoQuadrado + 8);
+	};
+	
+	this.virePara = function(sentido) {
+		this.sentido = this.sentido.virePara(sentido);
+		console.log("novo sentido: "+this.sentido.valor);
+	};
+	
+	this.ande = function(quadras) {
+		var novoLocal = this.local.desloca(this.sentido, quadras);
+		this.local.pintaRotaAte(novoLocal, bolaAzul);
+		
+		this.local = novoLocal;
+	};
 }
 
-var pintaCaminho = function(inicio, fim) {
-	console.log("pintando caminho de ("+inicio.x+","+inicio.y+") até ("+fim.x+","+fim.y+")");
-	if (inicio.x == fim.x) {
-		var menor = inicio.y <= fim.y ? inicio.y : fim.y;
-		var maior = inicio.y >= fim.y ? inicio.y : fim.y;
-
-		for (var i = menor; i <= maior; i++) {
-			bolaAzul(inicio.x, i)
-		}
-	} else 	if (inicio.y == fim.y) {
-		var menor = inicio.x < fim.x ? inicio.x : fim.x;
-		var maior = inicio.x > fim.x ? inicio.x : fim.x;
-
-		for (var i = menor; i <= maior; i++) {
-			bolaAzul(i, inicio.y)
-		}
-	}
-}
 
 var fase = new Fase();
 fase.inicia();
 
-var seta = function(coordenada, sentido) {
-	console.log("seta:" +sentido.simbolo());
-	ctx.fillStyle = "red";
-	ctx.font = "bold 30px Arial";
-	ctx.fillText(sentido.simbolo() , coordenada.x * tamanhoQuadrado - 8, coordenada.y * tamanhoQuadrado + 8);
-}
-
 function executaComandos(){
 	ctx.clearRect(0, 0, tabuleiro.width, tabuleiro.height);
-	var fase = new Fase();
+	
+	fase = new Fase();
 	fase.inicia();
 	
 	var entrada = document.getElementById("entrada").value;
@@ -147,41 +163,38 @@ function executaComandos(){
 	var sentidoAtual = new Sentido("direita");
 	var localAtual = fase.inicio;
 	
+	var carro = new Carro(localAtual, sentidoAtual);
+	
 	for (var i = 0; i< comandos.length; i++) {
 		var comando = comandos[i];
 		
 		if (comando == "vire para esquerda") {
-			sentidoAtual = sentidoAtual.virePara("esquerda");
-			console.log("novo sentido: "+sentidoAtual.valor);
+			carro.virePara("esquerda");
+			
 		} else if (comando == "vire para direita") {
-			sentidoAtual = sentidoAtual.virePara("direita");			
-			console.log("novo sentido: "+sentidoAtual.valor);
+			carro.virePara("direita");
+			
 		} else {
 			var linha = comando.split(" ");
 			
 			if (linha.length == 3 && linha[0] == "ande") {
 				var quadras = parseInt(linha[1]);
-				var novoLocal = localAtual.desloca(sentidoAtual, quadras);
-				pintaCaminho(localAtual, novoLocal);
-				localAtual = novoLocal;
+				carro.ande(quadras);
+				
 			} else {
+				fase.inicia();
 				alert("Comando invalido: " + comando);
 				break;
 			}
 		}
 	}
 	
-	seta(localAtual, sentidoAtual);
+	carro.desenhaSeta();
 	
-	if (localAtual.x == fase.fim.x && localAtual.y == fase.fim.y) {
+	if (localAtual == fase.fim) {
 		alert("Você ganhou!");
 	}
 	
-}
-
-
-
-
-
+};
 
 </script>

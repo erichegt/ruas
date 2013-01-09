@@ -5,12 +5,11 @@
 		<canvas id="tabuleiro" style="float: right; border:1px solid #000000;" width="800" height="400"></canvas>
 		<div>
 			<textarea id="entrada" style="height: 400px; width: 300px; display: block;"></textarea>
-			<input type="submit" value="Executar" onclick="executaComandos()" />
+			<input type="submit" value="Executar" id="botao" />
+			<input type="submit" value="Help" id="botaoHelp" />
 		</div>
 	</body>
 </html>
-
-<img id="carro" src="carro.png" hidden="true"/>
 
 <script>
 var tabuleiro = document.getElementById("tabuleiro");
@@ -149,8 +148,13 @@ var Carro = function(localInicial, sentidoInicial) {
 
 var fase = new Fase();
 fase.inicia();
+var sentidoAtual = new Sentido("direita");
+var localAtual = fase.inicio;
 
-function executaComandos(){
+var carro = new Carro(localAtual, sentidoAtual);
+carro.desenhaSeta();
+
+var executaComandos = function(){
 	ctx.clearRect(0, 0, tabuleiro.width, tabuleiro.height);
 	
 	fase = new Fase();
@@ -164,6 +168,7 @@ function executaComandos(){
 	var localAtual = fase.inicio;
 	
 	var carro = new Carro(localAtual, sentidoAtual);
+	carro.desenhaSeta();
 	
 	for (var i = 0; i< comandos.length; i++) {
 		var comando = comandos[i];
@@ -191,10 +196,20 @@ function executaComandos(){
 	
 	carro.desenhaSeta();
 	
-	if (localAtual == fase.fim) {
+	if (localAtual.x == fase.fim.x && localAtual.y == fase.fim.y) {
 		alert("Você ganhou!");
 	}
 	
+};
+
+var botao = document.getElementById("botao");
+botao.onclick = executaComandos;
+
+var botaoHelp = document.getElementById("botaoHelp");
+botaoHelp.onclick = function() {
+	var entrada = document.getElementById("entrada");
+	entrada.value = "ande 4 quadras\nvire para direita\nande 3 quadras\nvire para esquerda\nande 2 quadras";
+	alert("Clique no botão \"Executar\" para ver o resultado");
 };
 
 </script>
